@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Image Automation Pipeline: ArchivesSpace + DSpace</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #f0f2f5; color: #1a1a2e; padding: 40px 20px; }
+  h1 { text-align: center; font-size: 1.8rem; margin-bottom: 6px; color: #1a1a2e; }
+  .subtitle { text-align: center; font-size: 0.95rem; color: #555; margin-bottom: 36px; }
+  .pipeline { max-width: 1100px; margin: 0 auto; }
+
+  /* Step containers */
+  .step { display: flex; align-items: flex-start; gap: 24px; margin-bottom: 12px; position: relative; }
+  .step-number { flex-shrink: 0; width: 54px; height: 54px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; font-weight: 700; color: #fff; margin-top: 18px; }
+  .step-card { flex: 1; background: #fff; border-radius: 12px; padding: 22px 28px; box-shadow: 0 2px 12px rgba(0,0,0,0.07); border-left: 5px solid; }
+
+  .step-card h2 { font-size: 1.15rem; margin-bottom: 8px; }
+  .step-card p { font-size: 0.9rem; color: #444; line-height: 1.55; margin-bottom: 10px; }
+  .step-card .detail { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }
+  .step-card .tag { font-size: 0.78rem; padding: 4px 12px; border-radius: 20px; font-weight: 600; }
+
+  /* Step colors */
+  .step-1 .step-number { background: #4a90d9; }
+  .step-1 .step-card { border-color: #4a90d9; }
+  .step-1 .tag { background: #e8f0fb; color: #2a6cb8; }
+
+  .step-2 .step-number { background: #e67e22; }
+  .step-2 .step-card { border-color: #e67e22; }
+  .step-2 .tag { background: #fdf0e2; color: #c0620e; }
+
+  .step-3 .step-number { background: #27ae60; }
+  .step-3 .step-card { border-color: #27ae60; }
+  .step-3 .tag { background: #e3f6ec; color: #1a8a4a; }
+
+  /* Arrow connectors */
+  .arrow { display: flex; justify-content: center; margin: 0 0 12px 27px; }
+  .arrow svg { width: 28px; height: 36px; }
+  .arrow svg path { fill: #bbb; }
+
+  /* Data flow section */
+  .flow-section { max-width: 1100px; margin: 44px auto 0; }
+  .flow-section h2 { font-size: 1.3rem; text-align: center; margin-bottom: 24px; color: #1a1a2e; }
+
+  .flow-diagram { display: flex; align-items: center; justify-content: center; gap: 0; flex-wrap: wrap; }
+  .flow-box { background: #fff; border-radius: 10px; padding: 16px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); text-align: center; min-width: 150px; }
+  .flow-box .icon { font-size: 2rem; margin-bottom: 6px; }
+  .flow-box .label { font-size: 0.82rem; font-weight: 600; color: #333; }
+  .flow-box .sub { font-size: 0.72rem; color: #777; margin-top: 2px; }
+  .flow-arrow { font-size: 1.6rem; color: #aaa; padding: 0 6px; flex-shrink: 0; }
+
+  /* Cross-link section */
+  .crosslink { max-width: 1100px; margin: 44px auto 0; }
+  .crosslink h2 { font-size: 1.3rem; text-align: center; margin-bottom: 24px; color: #1a1a2e; }
+  .crosslink-diagram { display: flex; align-items: stretch; justify-content: center; gap: 36px; flex-wrap: wrap; }
+  .system-box { flex: 1; min-width: 280px; max-width: 420px; border-radius: 12px; padding: 24px; }
+  .system-box h3 { font-size: 1.05rem; margin-bottom: 14px; text-align: center; padding-bottom: 10px; border-bottom: 2px solid rgba(255,255,255,0.3); }
+  .system-box ul { list-style: none; font-size: 0.85rem; line-height: 2; }
+  .system-box ul li:before { content: '\2713'; margin-right: 8px; font-weight: 700; }
+
+  .aspace-box { background: linear-gradient(135deg, #2c3e50, #3d5266); color: #e8edf2; }
+  .aspace-box ul li:before { color: #5dade2; }
+  .dspace-box { background: linear-gradient(135deg, #1a5632, #27713e); color: #e3f2e8; }
+  .dspace-box ul li:before { color: #82e0aa; }
+
+  .link-arrows { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; flex-shrink: 0; }
+  .link-arrow { display: flex; align-items: center; gap: 6px; font-size: 0.78rem; color: #555; white-space: nowrap; }
+  .link-arrow .arr { font-size: 1.3rem; color: #e67e22; }
+
+  /* Infrastructure */
+  .infra { max-width: 1100px; margin: 44px auto 0; }
+  .infra h2 { font-size: 1.3rem; text-align: center; margin-bottom: 20px; color: #1a1a2e; }
+  .infra-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; }
+  .infra-item { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); text-align: center; border-top: 4px solid #ccc; }
+  .infra-item .port { font-size: 1.4rem; font-weight: 700; color: #4a90d9; }
+  .infra-item .name { font-size: 0.88rem; font-weight: 600; margin: 4px 0 2px; }
+  .infra-item .desc { font-size: 0.75rem; color: #777; }
+  .infra-item.docker { border-top-color: #2496ed; }
+  .infra-item.local { border-top-color: #e67e22; }
+
+  /* Command */
+  .command { max-width: 1100px; margin: 40px auto 0; background: #1a1a2e; border-radius: 12px; padding: 22px 28px; color: #c8d6e5; }
+  .command h2 { font-size: 1rem; color: #ffeaa7; margin-bottom: 10px; }
+  .command code { display: block; font-family: 'Cascadia Code', 'Fira Code', 'Consolas', monospace; font-size: 0.92rem; color: #55efc4; line-height: 1.8; }
+  .command .comment { color: #636e72; }
+
+  /* Footer */
+  .footer { text-align: center; margin-top: 44px; font-size: 0.78rem; color: #999; }
+
+  /* File label */
+  .file { font-family: 'Cascadia Code', 'Consolas', monospace; font-size: 0.82rem; background: #f4f4f4; padding: 2px 8px; border-radius: 4px; color: #555; }
+
+  @media (max-width: 700px) {
+    .crosslink-diagram { flex-direction: column; align-items: center; }
+    .link-arrows { flex-direction: row; }
+    .flow-diagram { flex-direction: column; }
+    .flow-arrow { transform: rotate(90deg); }
+  }
+</style>
+</head>
+<body>
+
+<h1>Image Automation Pipeline</h1>
+<p class="subtitle">AI-powered dual ingest into ArchivesSpace and DSpace with bidirectional cross-linking</p>
+
+<div class="pipeline">
+
+  <!-- Step 1 -->
+  <div class="step step-1">
+    <div class="step-number">1</div>
+    <div class="step-card">
+      <h2>AI Image Captioning</h2>
+      <p>Each image in the <span class="file">staging_images/</span> folder is sent to a locally-running AI vision model (LM Studio). The model examines each photograph and generates a title, description, and keywords. Results are saved to <span class="file">captions.csv</span>.</p>
+      <div class="detail">
+        <span class="tag">caption_folder.py</span>
+        <span class="tag">LM Studio (localhost:1234)</span>
+        <span class="tag">Output: captions.csv</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow"><svg viewBox="0 0 28 36"><path d="M14 0 L14 28 L6 20 L14 28 L22 20"/></svg></div>
+
+  <!-- Step 2 -->
+  <div class="step step-2">
+    <div class="step-number">2</div>
+    <div class="step-card">
+      <h2>Dual-System Import</h2>
+      <p>Reads <span class="file">captions.csv</span> and creates records in both systems via their REST APIs. In DSpace, a community, collection, and items are created with full Dublin Core metadata and uploaded image bitstreams. In ArchivesSpace, Digital Objects are created with embedded images, summary notes, and keywords. Bidirectional cross-links connect corresponding records across both systems.</p>
+      <div class="detail">
+        <span class="tag">import_to_both.py</span>
+        <span class="tag">DSpace REST API (:8081)</span>
+        <span class="tag">ArchivesSpace API (:8089)</span>
+        <span class="tag">--prefix flag for labeling</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="arrow"><svg viewBox="0 0 28 36"><path d="M14 0 L14 28 L6 20 L14 28 L22 20"/></svg></div>
+
+  <!-- Step 3 -->
+  <div class="step step-3">
+    <div class="step-number">3</div>
+    <div class="step-card">
+      <h2>Thumbnail Generation</h2>
+      <p>DSpace's built-in media filter processes uploaded bitstreams and generates thumbnail images, making them visible in browse and search interfaces.</p>
+      <div class="detail">
+        <span class="tag">dspace filter-media</span>
+        <span class="tag">Runs inside Docker container</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Data Flow -->
+<div class="flow-section">
+  <h2>Data Flow</h2>
+  <div class="flow-diagram">
+    <div class="flow-box">
+      <div class="icon">&#128247;</div>
+      <div class="label">Image Files</div>
+      <div class="sub">staging_images/</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-box">
+      <div class="icon">&#129302;</div>
+      <div class="label">LM Studio AI</div>
+      <div class="sub">Vision model analysis</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-box">
+      <div class="icon">&#128196;</div>
+      <div class="label">captions.csv</div>
+      <div class="sub">Title, description, keywords</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-box">
+      <div class="icon">&#9881;</div>
+      <div class="label">Import Script</div>
+      <div class="sub">import_to_both.py</div>
+    </div>
+    <div class="flow-arrow">&#10132;</div>
+    <div class="flow-box" style="border: 2px solid #e67e22;">
+      <div class="icon">&#128193;</div>
+      <div class="label">DSpace + ArchivesSpace</div>
+      <div class="sub">Records with cross-links</div>
+    </div>
+  </div>
+</div>
+
+<!-- Cross-Linking -->
+<div class="crosslink">
+  <h2>Bidirectional Cross-Linking</h2>
+  <div class="crosslink-diagram">
+    <div class="system-box aspace-box">
+      <h3>ArchivesSpace</h3>
+      <ul>
+        <li>Digital Object with embedded image</li>
+        <li>Summary note with description</li>
+        <li>Keywords in notes</li>
+        <li>Clickable link to DSpace item</li>
+        <li>DSpace Handle reference</li>
+        <li>Shared identifier (digital_object_id)</li>
+        <li>Collection-level link to DSpace</li>
+      </ul>
+    </div>
+    <div class="link-arrows">
+      <div class="link-arrow"><span class="arr">&#10132;</span> Link to DSpace Record</div>
+      <div class="link-arrow">Referenced By <span class="arr">&#10132;</span></div>
+      <div class="link-arrow" style="color: #999; font-style: italic;">Shared Identifier</div>
+    </div>
+    <div class="system-box dspace-box">
+      <h3>DSpace</h3>
+      <ul>
+        <li>Item with Dublin Core metadata</li>
+        <li>Original image as bitstream</li>
+        <li>Generated thumbnail</li>
+        <li>Clickable link to ArchivesSpace record</li>
+        <li>Shared identifier (dc.identifier.other)</li>
+        <li>Subject keywords from AI</li>
+        <li>Persistent Handle identifier</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- Infrastructure -->
+<div class="infra">
+  <h2>Infrastructure (All Docker)</h2>
+  <div class="infra-grid">
+    <div class="infra-item docker">
+      <div class="port">:80</div>
+      <div class="name">ArchivesSpace Staff UI</div>
+      <div class="desc">nginx proxy &rarr; port 8080</div>
+    </div>
+    <div class="infra-item docker">
+      <div class="port">:8089</div>
+      <div class="name">ArchivesSpace API</div>
+      <div class="desc">Backend REST API</div>
+    </div>
+    <div class="infra-item docker">
+      <div class="port">:8081</div>
+      <div class="name">DSpace Backend</div>
+      <div class="desc">REST API (container :8080)</div>
+    </div>
+    <div class="infra-item docker">
+      <div class="port">:4000</div>
+      <div class="name">DSpace Frontend</div>
+      <div class="desc">Angular UI</div>
+    </div>
+    <div class="infra-item docker">
+      <div class="port">:8000</div>
+      <div class="name">Image Server</div>
+      <div class="desc">nginx serving staging_images/</div>
+    </div>
+    <div class="infra-item local">
+      <div class="port">:1234</div>
+      <div class="name">LM Studio</div>
+      <div class="desc">Local AI vision model</div>
+    </div>
+  </div>
+</div>
+
+<!-- Command -->
+<div class="command">
+  <h2>Quick Start</h2>
+  <code>
+    <span class="comment"># Run the full pipeline with an optional prefix</span><br>
+    python caption_folder.py staging_images<br>
+    python import_to_both.py --prefix "Demo - " staging_images<br>
+    docker exec dspace /dspace/bin/dspace filter-media<br><br>
+    <span class="comment"># Cleanup utility</span><br>
+    python dspace_delete_community.py --prefix "Demo - "
+  </code>
+</div>
+
+<p class="footer">Image Automation Pipeline &mdash; ArchivesSpace 4.1.1 + DSpace 8.0 &mdash; Built with Claude Code</p>
+
+</body>
+</html>

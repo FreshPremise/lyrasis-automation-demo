@@ -1,0 +1,48 @@
+# Credentials and config (never commit these)
+config.py
+CST LOGINS.txt
+*.env
+.env.*
+
+# Claude Code session files
+.claude/
+
+# Windows artifacts
+nul
+
+# Legacy/development scripts (not needed for distribution)
+phase*.py
+dspace_approve.py
+dspace_fix_collection.py
+fix_windows_config.py
+setup_insecure_dspace.py
+unlock_dspace.py
+
+# Generated files
+captions.csv
+*.pyc
+__pycache__/
+*.pyo
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Log files
+*.log
+
+# Staging images (users provide their own)
+staging_images/*.jpg
+staging_images/*.jpeg
+staging_images/*.png
+!staging_images/.gitkeep
+
+# Docker volumes and data
+*/data/
+*/logs/

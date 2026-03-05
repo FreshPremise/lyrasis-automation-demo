@@ -1,0 +1,54 @@
+# VIVO - Research Networking & Profiles
+# https://vivoweb.org/
+#
+# Ports:
+#   - 8082: Web UI
+#   - 8985: Solr admin
+#
+# Default credentials: Create via web UI on first run
+
+services:
+  vivo-solr:
+    image: vivoweb/vivo-solr:latest
+    container_name: vivo-solr
+    restart: unless-stopped
+    environment:
+      - RESET_CORE=false
+      - VERBOSE=true
+    ports:
+      - "8985:8983"
+    volumes:
+      - vivo-solr-data:/opt/solr/server/solr/mycores
+    networks:
+      - vivoweb
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8983/solr/vivocore/admin/ping || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+
+  vivo:
+    image: vivoweb/vivo:latest
+    container_name: vivo
+    hostname: vivo
+    restart: unless-stopped
+    environment:
+      - RESET_HOME=false
+      - VERBOSE=true
+      - SOLR_URL=http://vivo-solr:8983/solr/vivocore
+    ports:
+      - "8082:8080"
+    volumes:
+      - vivo-home:/usr/local/vivo/home
+    networks:
+      - vivoweb
+    depends_on:
+      vivo-solr:
+        condition: service_healthy
+
+networks:
+  vivoweb:
+
+volumes:
+  vivo-solr-data:
+  vivo-home:

@@ -1,0 +1,84 @@
+# DSpace - Digital Repository & Preservation
+# https://dspace.org/
+#
+# Ports:
+#   - 8081: REST API (backend)
+#   - 4000: Angular UI (frontend)
+#   - 8984: Solr admin
+#
+# Default credentials: Set in local.cfg or use REST API
+
+version: '3.7'
+
+services:
+  dspace:
+    image: dspace/dspace:dspace-8.0
+    container_name: dspace
+    restart: unless-stopped
+    environment:
+      # These can also be set in local.cfg
+      - dspace.server.url=http://localhost:8081/server
+      - dspace.ui.url=http://localhost:4000
+      - dspace.name=DSpace Demo
+    ports:
+      - "8081:8080"
+    volumes:
+      - dspace-assetstore:/dspace/assetstore
+      - ./dspace-config/local.cfg:/dspace/config/local.cfg
+    depends_on:
+      - dspacedb
+      - dspacesolr
+    networks:
+      - dspacenet
+    stdin_open: true
+    tty: true
+
+  dspacedb:
+    image: dspace/dspace-postgres-pgcrypto
+    container_name: dspacedb
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=dspace
+      - POSTGRES_USER=dspace
+      - POSTGRES_PASSWORD=dspace
+    volumes:
+      - dspace-pgdata:/var/lib/postgresql/data
+    networks:
+      - dspacenet
+
+  dspacesolr:
+    image: dspace/dspace-solr:dspace-8.0
+    container_name: dspacesolr
+    restart: unless-stopped
+    ports:
+      - "8984:8983"
+    volumes:
+      - dspace-solr:/var/solr/data
+    networks:
+      - dspacenet
+
+  dspace-ui:
+    image: dspace/dspace-angular:dspace-8.0
+    container_name: dspace-ui
+    restart: unless-stopped
+    environment:
+      - DSPACE_UI_SSL=false
+      - DSPACE_UI_HOST=0.0.0.0
+      - DSPACE_UI_PORT=4000
+      - DSPACE_REST_SSL=false
+      - DSPACE_REST_HOST=localhost
+      - DSPACE_REST_PORT=8081
+    ports:
+      - "4000:4000"
+    depends_on:
+      - dspace
+    networks:
+      - dspacenet
+
+networks:
+  dspacenet:
+
+volumes:
+  dspace-assetstore:
+  dspace-pgdata:
+  dspace-solr:
