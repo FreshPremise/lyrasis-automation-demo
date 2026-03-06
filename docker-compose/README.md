@@ -1,6 +1,6 @@
-# Docker Compose Files for Lyrasis Systems
+# Docker Compose Files
 
-This directory contains Docker Compose configurations for each Lyrasis system.
+This directory contains Docker Compose configurations for each system.
 
 ## Directory Structure
 
