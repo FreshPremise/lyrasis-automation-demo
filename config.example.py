@@ -1,5 +1,5 @@
 """
-Configuration Template for Lyrasis Community Software Automation
+Configuration Template for Community Software Automation
 
 Instructions:
 1. Copy this file to 'config.py'
