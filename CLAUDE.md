@@ -1,6 +1,6 @@
-# Lyrasis Community Supported Software - Local Automation Demo
+# Community Supported Software - Local Automation Demo
 
-This project demonstrates that multiple Lyrasis Community Supported Software systems can run together locally with automated cross-system workflows. All systems run via Docker for security and portability.
+This project demonstrates that multiple Community Supported Software systems can run together locally with automated cross-system workflows. All systems run via Docker for security and portability.
 
 ## Lyrasis Systems Running Locally
 
