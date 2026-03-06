@@ -1,5 +1,5 @@
 """
-Demo Startup Script - Ensures all 5 Lyrasis systems are ready
+Demo Startup Script - Ensures all 5 systems are ready
 Run this after Docker Desktop starts to verify all services are working.
 
 Usage: python start_demo.py
