@@ -2,7 +2,7 @@
 Unified Import Script: Creates records in DSpace, ArchivesSpace, VIVO, Fedora, AND CollectionSpace
 Usage: python import_to_all.py <image_folder> [--prefix "Demo - "] [--caption]
 
-Demonstrates Lyrasis Community Supported Software working together:
+Demonstrates Community Supported Software working together:
 1. Optionally runs AI captioning via LM Studio (--caption flag)
 2. Reads captions.csv and creates records in all five systems with cross-links
 3. All systems run locally via Docker - nothing uploaded externally
