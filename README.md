@@ -1,6 +1,6 @@
-# Lyrasis Community Software Automation Demo
+# Community Supported Software Automation Demo
 
-This project demonstrates that **five Lyrasis Community Supported Software systems** can run together locally via Docker with automated cross-system workflows. A single command creates linked records across all systems with AI-generated descriptions.
+This project demonstrates that these **five Community Supported Software systems** can run together locally via Docker with automated cross-system workflows. A single command creates linked records across all systems with AI-generated descriptions.
 
 ## What This Does
 
@@ -523,13 +523,12 @@ cd /apache-tomcat-8.5.51
 ## Credits
 
 - **Photographer/Test Images**: Steve Eberhardt ([FreshPremise.com](https://freshpremise.com))
-- **Lyrasis Systems**: [lyrasis.org](https://www.lyrasis.org/)
 - **Automation**: Built with assistance from Claude AI
 
 ---
 
 ## License
 
-This project is provided as a demonstration of Lyrasis Community Supported Software working together. Each Lyrasis system has its own license - please refer to their respective documentation.
+This project is provided as a demonstration of Community Supported Software working together. Each system has its own license - please refer to their respective documentation.
 
 The automation scripts in this repository are released under the MIT License.
