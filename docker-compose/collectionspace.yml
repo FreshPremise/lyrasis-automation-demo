@@ -1,0 +1,97 @@
+# CollectionSpace - Museum Collections Management
+# https://collectionspace.org/
+#
+# NOTE: CollectionSpace requires building from source after initial container setup.
+# See the README.md for detailed build instructions.
+#
+# Ports:
+#   - 8180: Web UI and REST API
+#   - 5434: PostgreSQL (for debugging)
+#   - 9202: ElasticSearch (for debugging)
+#
+# Default credentials: admin@core.collectionspace.org / Administrator
+
+services:
+  db:
+    image: postgres:12
+    container_name: cspace-db
+    restart: unless-stopped
+    environment:
+      - POSTGRES_USER=csadmin
+      - POSTGRES_PASSWORD=csadmin
+      - POSTGRES_DB=template1
+    ports:
+      - "5434:5432"
+    volumes:
+      - cspace-db-data:/var/lib/postgresql/data
+    networks:
+      - collectionspace
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U csadmin"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  es:
+    image: elasticsearch:7.17.9
+    container_name: cspace-es
+    restart: unless-stopped
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ports:
+      - "9202:9200"
+    volumes:
+      - cspace-es-data:/usr/share/elasticsearch/data
+    networks:
+      - collectionspace
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 15s
+      retries: 20
+      start_period: 60s
+
+  collectionspace:
+    image: collectionspace/dev:latest
+    container_name: collectionspace
+    restart: unless-stopped
+    environment:
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_CSADMIN_PASSWORD=csadmin
+      - DB_CSPACE_PASSWORD=cspace
+      - DB_NUXEO_PASSWORD=nuxeo
+      - DB_READER_PASSWORD=reader
+      - ES_HOST=http://es:9200
+      - CSPACE_INSTANCE_ID=_demo
+      - JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+      - ANT_OPTS=-Xmx1024m
+      - MAVEN_OPTS=-Xmx1024m
+    ports:
+      - "8180:8180"
+    volumes:
+      - cspace-home:/opt/collectionspace
+      - cspace-services:/services
+      - cspace-tomcat:/apache-tomcat-8.5.51
+    networks:
+      - collectionspace
+    depends_on:
+      db:
+        condition: service_healthy
+      es:
+        condition: service_healthy
+    # Keep container running for build process
+    command: tail -f /dev/null
+    mem_limit: 4g
+
+networks:
+  collectionspace:
+
+volumes:
+  cspace-db-data:
+  cspace-es-data:
+  cspace-home:
+  cspace-services:
+  cspace-tomcat:

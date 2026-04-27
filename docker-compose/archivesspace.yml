@@ -1,0 +1,93 @@
+# ArchivesSpace - Archival Description & Finding Aids
+# https://archivesspace.org/
+#
+# Ports:
+#   - 8089: Backend API
+#   - 80: Staff UI (via nginx proxy)
+#   - 8983: Solr admin
+#   - 8000: Image server (serves staging_images/)
+#
+# Default credentials: admin / admin
+
+services:
+  archivesspace:
+    image: archivesspace/archivesspace:latest
+    container_name: archivesspace
+    restart: unless-stopped
+    environment:
+      # Database connection
+      - ARCHIVESSPACE_DB_TYPE=mysql
+      - ARCHIVESSPACE_DB_HOST=mysql
+      - ARCHIVESSPACE_DB_PORT=3306
+      - ARCHIVESSPACE_DB_NAME=archivesspace
+      - ARCHIVESSPACE_DB_USER=archivesspace
+      - ARCHIVESSPACE_DB_PASS=archivesspace
+      # Solr connection
+      - ARCHIVESSPACE_SOLR_URL=http://solr:8983/solr/archivesspace
+      # Disable CSRF for API automation
+      - APPCONFIG_GLOBAL_CSRF_PROTECTION=false
+    ports:
+      - "8089:8089"
+    volumes:
+      - archivesspace-data:/archivesspace/data
+    depends_on:
+      - mysql
+      - solr
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q --spider http://localhost:8089/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  mysql:
+    image: mysql:8
+    container_name: mysql
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=archivesspace
+      - MYSQL_USER=archivesspace
+      - MYSQL_PASSWORD=archivesspace
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  solr:
+    image: archivesspace/solr:latest
+    container_name: solr
+    restart: unless-stopped
+    command: solr-precreate archivesspace /opt/solr/server/solr/configsets/archivesspace
+    ports:
+      - "8983:8983"
+    volumes:
+      - solr-data:/var/solr
+
+  # Nginx proxy for Staff UI on port 80
+  proxy:
+    image: nginx:alpine
+    container_name: proxy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./proxy-config/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - archivesspace
+
+  # Image server for Digital Objects
+  # Serves images from staging_images/ folder
+  image-server:
+    image: nginx:alpine
+    container_name: image-server
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ../staging_images:/usr/share/nginx/html:ro
+
+volumes:
+  archivesspace-data:
+  mysql-data:
+  solr-data:

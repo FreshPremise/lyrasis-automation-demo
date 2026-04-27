@@ -1,0 +1,36 @@
+# Fedora Commons - Linked Data Repository
+# https://fedora.lyrasis.org/
+#
+# Ports:
+#   - 8083: REST API
+#
+# Default credentials: fedoraAdmin / fedoraAdmin
+# (Set via environment variables below)
+
+services:
+  fcrepo:
+    image: fcrepo/fcrepo:6.5.1-tomcat9
+    container_name: fcrepo
+    restart: unless-stopped
+    environment:
+      - CATALINA_OPTS=-Djava.awt.headless=true -Dfile.encoding=UTF-8 -server -Xms512m -Xmx1024m
+      # Change these credentials for your setup
+      - FEDORA_ADMIN_USERNAME=fedoraAdmin
+      - FEDORA_ADMIN_PASSWORD=fedoraAdmin
+    ports:
+      - "8083:8080"
+    volumes:
+      - fcrepo-data:/usr/local/tomcat/fcrepo-home
+    networks:
+      - fedora
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/fcrepo/rest/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+networks:
+  fedora:
+
+volumes:
+  fcrepo-data:
