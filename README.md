@@ -522,7 +522,6 @@ cd /apache-tomcat-8.5.51
 
 ## Credits
 
-- **Photographer/Test Images**: [FreshPremise.com](https://freshpremise.com)
 - **Automation**: Built with assistance from Claude AI
 
 ---
